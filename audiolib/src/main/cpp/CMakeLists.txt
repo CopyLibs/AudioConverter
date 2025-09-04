@@ -8,7 +8,8 @@ add_subdirectory(silk silk)
 add_library(audio SHARED
         audio/SilkCoder.cpp
         audio/LameCoder.cpp
-        audio.cpp
+        native/AudioNative.cpp
+        main.cpp
 )
 
 target_include_directories(audio PRIVATE .)
