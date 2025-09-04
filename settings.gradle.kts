@@ -23,3 +23,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "AudioConverter"
 include(":app")
+include(":audiolib")
