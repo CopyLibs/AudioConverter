@@ -1,6 +1,10 @@
+import com.vanniktech.maven.publish.AndroidSingleVariantLibrary
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
+    id("com.vanniktech.maven.publish") version "0.34.0"
+    id("signing")
 }
 
 android {
@@ -27,4 +31,39 @@ android {
 }
 
 dependencies {
+}
+
+mavenPublishing {
+    configure(AndroidSingleVariantLibrary(publishJavadocJar = false))
+    coordinates(
+        groupId = "io.github.copylibs",
+        artifactId = "audio-converter",
+        version = "1.0.0.beta1"
+    )
+
+    pom {
+        name = "AudioConverter"
+        description = "Audio Converter For Android"
+        url = "https://github.com/CopyLibs/AudioConverter"
+        licenses {
+            license {
+                name = "The Apache License, Version 2.0"
+                url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+            }
+        }
+        developers {
+            developer {
+                name = "HdShare"
+                url = "https://github.com/HdShare"
+            }
+        }
+        scm {
+            url = "https://github.com/CopyLibs/AudioConverter"
+            connection = "scm:git:git://github.com/CopyLibs/AudioConverter.git"
+            developerConnection = "scm:git:ssh://git@github.com/CopyLibs/AudioConverter.git"
+        }
+    }
+
+    publishToMavenCentral()
+    signAllPublications()
 }
