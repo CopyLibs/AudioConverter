@@ -1,6 +1,6 @@
-package me.hd.audioconverter.util
+package me.hd.audiolib.util
 
-import me.hd.audioconverter.native.AudioNative
+import me.hd.audiolib.native.AudioNative
 import java.io.File
 import java.io.IOException
 

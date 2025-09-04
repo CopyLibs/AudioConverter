@@ -1,4 +1,4 @@
-package me.hd.audioconverter.native
+package me.hd.audiolib.native
 
 object AudioNative {
     external fun silkToPcmConvert(

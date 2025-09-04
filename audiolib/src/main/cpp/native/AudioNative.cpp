@@ -97,7 +97,7 @@ void mp3ToPcmClose(
 }
 
 void AudioNative::init(JNIEnv *env) {
-    jclass clazz = env->FindClass("me/hd/audioconverter/native/AudioNative");
+    jclass clazz = env->FindClass("me/hd/audiolib/native/AudioNative");
     JNINativeMethod methods[] = {
             {"silkToPcmConvert", "(Ljava/lang/String;Ljava/lang/String;ZII)V",        (void *) silkToPcmConvert},
             {"pcmToSilkConvert", "(Ljava/lang/String;Ljava/lang/String;ZZIIIIIIII)V", (void *) pcmToSilkConvert},

@@ -3,7 +3,7 @@ package me.hd.audioconverter
 import android.app.Activity
 import android.os.Bundle
 import me.hd.audioconverter.databinding.ActivityMainBinding
-import me.hd.audioconverter.util.AudioUtil
+import me.hd.audiolib.util.AudioUtil
 import java.io.File
 
 class MainActivity : Activity() {
