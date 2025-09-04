@@ -28,6 +28,8 @@
 # include <config.h>
 #endif
 
+#define HAVE_MPGLIB
+
 #ifdef HAVE_MPGLIB
 #define hip_global_struct mpstr_tag 
 #include "lame.h"
