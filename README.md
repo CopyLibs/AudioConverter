@@ -28,6 +28,11 @@ implementation("io.github.copylibs:audio-converter:$version")
    fun silkToMp3(silkFile: File): File
    ```
 
+3. 相关辅助方法
+   ```kotlin
+   fun getSilkDuration(silkFile: File): Int
+   ```
+
 ## 致谢
 
 - [lame](https://sourceforge.net/projects/lame/files/lame/)

@@ -1,6 +1,6 @@
-package me.hd.audiolib.util
+package io.github.copylibs.audiolib.util
 
-import me.hd.audiolib.native.AudioNative
+import io.github.copylibs.audiolib.native.AudioNative
 import java.io.File
 import java.io.IOException
 

@@ -1,9 +1,9 @@
-package me.hd.audioconverter
+package io.github.copylibs.audiolib
 
 import android.app.Activity
 import android.os.Bundle
-import me.hd.audioconverter.databinding.ActivityMainBinding
-import me.hd.audiolib.util.AudioUtil
+import io.github.copylibs.audiolib.databinding.ActivityMainBinding
+import io.github.copylibs.audiolib.util.AudioUtil
 import java.io.File
 
 class MainActivity : Activity() {
