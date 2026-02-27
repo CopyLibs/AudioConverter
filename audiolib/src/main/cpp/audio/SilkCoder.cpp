@@ -53,8 +53,8 @@ void SilkCoder::SilkToPcmConvert(
 
     /* Open files */
     bitInFile = fopen(bitInFileName, "rb");
-    if (debug && bitInFile == NULL) {
-        LOGD("Error: could not open input file %s\n", bitInFileName);
+    if (bitInFile == NULL) {
+        if (debug) LOGD("Error: could not open input file %s\n", bitInFileName);
         return;
     }
 
@@ -66,25 +66,25 @@ void SilkCoder::SilkToPcmConvert(
         if (strcmp(header_buf, "") != 0) {
             counter = fread(header_buf, sizeof(char), strlen("!SILK_V3"), bitInFile);
             header_buf[strlen("!SILK_V3")] = '\0'; /* Terminate with a null character */
-            if (debug && strcmp(header_buf, "!SILK_V3") != 0) {
+            if (strcmp(header_buf, "!SILK_V3") != 0) {
                 /* Non-equal strings */
-                LOGD("Error: Wrong Header %s\n", header_buf);
+                if (debug) LOGD("Error: Wrong Header %s\n", header_buf);
                 return;
             }
         } else {
             counter = fread(header_buf, sizeof(char), strlen("#!SILK_V3"), bitInFile);
             header_buf[strlen("#!SILK_V3")] = '\0'; /* Terminate with a null character */
-            if (debug && strcmp(header_buf, "#!SILK_V3") != 0) {
+            if (strcmp(header_buf, "#!SILK_V3") != 0) {
                 /* Non-equal strings */
-                LOGD("Error: Wrong Header %s\n", header_buf);
+                if (debug) LOGD("Error: Wrong Header %s\n", header_buf);
                 return;
             }
         }
     }
 
     speechOutFile = fopen(speechOutFileName, "wb");
-    if (debug && speechOutFile == NULL) {
-        LOGD("Error: could not open output file %s\n", speechOutFileName);
+    if (speechOutFile == NULL) {
+        if (debug) LOGD("Error: could not open output file %s\n", speechOutFileName);
         return;
     }
 
@@ -100,15 +100,15 @@ void SilkCoder::SilkToPcmConvert(
 
     /* Create decoder */
     ret = SKP_Silk_SDK_Get_Decoder_Size(&decSizeBytes);
-    if (debug && ret) {
-        LOGD("\nSKP_Silk_SDK_Get_Decoder_Size returned %d", ret);
+    if (ret) {
+        if (debug) LOGD("\nSKP_Silk_SDK_Get_Decoder_Size returned %d", ret);
     }
     psDec = malloc(decSizeBytes);
 
     /* Reset decoder */
     ret = SKP_Silk_SDK_InitDecoder(psDec);
-    if (debug && ret) {
-        LOGD("\nSKP_Silk_InitDecoder returned %d", ret);
+    if (ret) {
+        if (debug) LOGD("\nSKP_Silk_InitDecoder returned %d", ret);
     }
 
     totPackets = 0;
@@ -195,8 +195,8 @@ void SilkCoder::SilkToPcmConvert(
             do {
                 /* Decode 20 ms */
                 ret = SKP_Silk_SDK_Decode(psDec, &DecControl, 0, payloadToDec, nBytes, outPtr, &len);
-                if (debug && ret) {
-                    LOGD("\nSKP_Silk_SDK_Decode returned %d", ret);
+                if (ret) {
+                    if (debug) LOGD("\nSKP_Silk_SDK_Decode returned %d", ret);
                 }
 
                 frames++;
@@ -215,8 +215,8 @@ void SilkCoder::SilkToPcmConvert(
             for (i = 0; i < DecControl.framesPerPacket; i++) {
                 /* Generate 20 ms */
                 ret = SKP_Silk_SDK_Decode(psDec, &DecControl, 1, payloadToDec, nBytes, outPtr, &len);
-                if (debug && ret) {
-                    LOGD("\nSKP_Silk_Decode returned %d", ret);
+                if (ret) {
+                    if (debug) LOGD("\nSKP_Silk_Decode returned %d", ret);
                 }
                 outPtr += len;
                 tot_len += len;
@@ -239,8 +239,8 @@ void SilkCoder::SilkToPcmConvert(
             totBytes += nBytesPerPacket[i + 1];
         }
         /* Check if the received totBytes is valid */
-        if (debug && (totBytes < 0 || totBytes > sizeof(payload))) {
-            // LOGD("\rPackets decoded:             %d", totPackets);
+        if ((totBytes < 0 || totBytes > sizeof(payload))) {
+            if (debug) LOGD("\rPackets decoded:             %d", totPackets);
             return;
         }
         SKP_memmove(payload, &payload[nBytesPerPacket[0]], totBytes * sizeof(SKP_uint8));
@@ -248,7 +248,7 @@ void SilkCoder::SilkToPcmConvert(
         SKP_memmove(nBytesPerPacket, &nBytesPerPacket[1], MAX_LBRR_DELAY * sizeof(SKP_int16));
 
         if (debug && !quiet) {
-            // LOGD("\rPackets decoded:             %d", totPackets);
+            LOGD("\rPackets decoded:             %d", totPackets);
         }
     }
 
@@ -291,8 +291,8 @@ void SilkCoder::SilkToPcmConvert(
             do {
                 /* Decode 20 ms */
                 ret = SKP_Silk_SDK_Decode(psDec, &DecControl, 0, payloadToDec, nBytes, outPtr, &len);
-                if (debug && ret) {
-                    LOGD("\nSKP_Silk_SDK_Decode returned %d", ret);
+                if (ret) {
+                    if (debug) LOGD("\nSKP_Silk_SDK_Decode returned %d", ret);
                 }
 
                 frames++;
@@ -312,8 +312,8 @@ void SilkCoder::SilkToPcmConvert(
             /* Generate 20 ms */
             for (i = 0; i < DecControl.framesPerPacket; i++) {
                 ret = SKP_Silk_SDK_Decode(psDec, &DecControl, 1, payloadToDec, nBytes, outPtr, &len);
-                if (debug && ret) {
-                    LOGD("\nSKP_Silk_Decode returned %d", ret);
+                if (ret) {
+                    if (debug) LOGD("\nSKP_Silk_Decode returned %d", ret);
                 }
                 outPtr += len;
                 tot_len += len;
@@ -337,8 +337,8 @@ void SilkCoder::SilkToPcmConvert(
         }
 
         /* Check if the received totBytes is valid */
-        if (debug && (totBytes < 0 || totBytes > sizeof(payload))) {
-            // LOGD("\rPackets decoded:              %d", totPackets);
+        if ((totBytes < 0 || totBytes > sizeof(payload))) {
+            if (debug) LOGD("\rPackets decoded:              %d", totPackets);
             return;
         }
 
@@ -347,7 +347,7 @@ void SilkCoder::SilkToPcmConvert(
         SKP_memmove(nBytesPerPacket, &nBytesPerPacket[1], MAX_LBRR_DELAY * sizeof(SKP_int16));
 
         if (debug && !quiet) {
-            // LOGD("\rPackets decoded:              %d", totPackets);
+            LOGD("\rPackets decoded:              %d", totPackets);
         }
     }
 
@@ -458,13 +458,13 @@ void SilkCoder::PcmToSilkConvert(
 
     /* Open files */
     speechInFile = fopen(speechInFileName, "rb");
-    if (debug && speechInFile == NULL) {
-        LOGD("Error: could not open input file %s\n", speechInFileName);
+    if (speechInFile == NULL) {
+        if (debug) LOGD("Error: could not open input file %s\n", speechInFileName);
         return;
     }
     bitOutFile = fopen(bitOutFileName, "wb");
-    if (debug && bitOutFile == NULL) {
-        LOGD("Error: could not open output file %s\n", bitOutFileName);
+    if (bitOutFile == NULL) {
+        if (debug) LOGD("Error: could not open output file %s\n", bitOutFileName);
         return;
     }
 
@@ -481,8 +481,8 @@ void SilkCoder::PcmToSilkConvert(
 
     /* Create Encoder */
     ret = SKP_Silk_SDK_Get_Encoder_Size(&encSizeBytes);
-    if (debug && ret) {
-        LOGD("\nError: SKP_Silk_create_encoder returned %d\n", ret);
+    if (ret) {
+        if (debug) LOGD("\nError: SKP_Silk_create_encoder returned %d\n", ret);
         return;
     }
 
@@ -490,8 +490,8 @@ void SilkCoder::PcmToSilkConvert(
 
     /* Reset Encoder */
     ret = SKP_Silk_SDK_InitEncoder(psEnc, &encStatus);
-    if (debug && ret) {
-        LOGD("\nError: SKP_Silk_reset_encoder returned %d\n", ret);
+    if (ret) {
+        if (debug) LOGD("\nError: SKP_Silk_reset_encoder returned %d\n", ret);
         return;
     }
 
@@ -505,8 +505,8 @@ void SilkCoder::PcmToSilkConvert(
     encControl.complexity = complexity_mode;
     encControl.bitRate = (targetRate_bps > 0 ? targetRate_bps : 0);
 
-    if (debug && (API_fs_Hz > MAX_API_FS_KHZ * 1000 || API_fs_Hz < 0)) {
-        LOGD("\nError: API sampling rate = %d out of range, valid range 8000 - 48000 \n \n", API_fs_Hz);
+    if ((API_fs_Hz > MAX_API_FS_KHZ * 1000 || API_fs_Hz < 0)) {
+        if (debug) LOGD("\nError: API sampling rate = %d out of range, valid range 8000 - 48000 \n \n", API_fs_Hz);
         return;
     }
 
@@ -535,8 +535,8 @@ void SilkCoder::PcmToSilkConvert(
 
         /* Silk Encoder */
         ret = SKP_Silk_SDK_Encode(psEnc, &encControl, in, (SKP_int16) counter, payload, &nBytes);
-        if (debug && ret) {
-            LOGD("\nSKP_Silk_Encode returned %d", ret);
+        if (ret) {
+            if (debug) LOGD("\nSKP_Silk_Encode returned %d", ret);
         }
 
         tottime += GetHighResolutionTime() - starttime;
@@ -576,7 +576,7 @@ void SilkCoder::PcmToSilkConvert(
             smplsSinceLastPacket = 0;
 
             if (debug && !quiet) {
-                // LOGD("\rPackets encoded:                %d", totPackets);
+                LOGD("\rPackets encoded:                %d", totPackets);
             }
         }
     }
