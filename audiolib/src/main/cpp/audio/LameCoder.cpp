@@ -81,18 +81,19 @@ void LameCoder::PcmToMp3Convert(const char *pcmPath, const char *mp3Path) {
     int write = 0;
     int total = 0;
 
-    read = static_cast<int>(fread(input, sizeof(short), BUFFER_SIZE, pcmFile));
-    while (read) {
-        write = lame_encode_buffer(lame, input, input, read, output, static_cast<int>(sizeof(output)));
-        if (write < 0) write = 0;
-        total += write;
-        if (write > 0) fwrite(output, 1, write, mp3File);
+    do {
         read = static_cast<int>(fread(input, sizeof(short), BUFFER_SIZE, pcmFile));
-    }
-
-    write = lame_encode_flush(lame, output, static_cast<int>(sizeof(output)));
-    if (write < 0) write = 0;
-    if (write > 0) fwrite(output, 1, write, mp3File);
+        if (read > 0) {
+            write = lame_encode_buffer(lame, input, input, read, output, static_cast<int>(sizeof(output)));
+            if (write < 0) write = 0;
+            total += write;
+            if (write > 0) fwrite(output, 1, write, mp3File);
+        } else {
+            write = lame_encode_flush(lame, output, static_cast<int>(sizeof(output)));
+            if (write < 0) write = 0;
+            if (write > 0) fwrite(output, 1, write, mp3File);
+        }
+    } while (read > 0);
 
     fclose(mp3File);
     fclose(pcmFile);
@@ -116,16 +117,6 @@ int LameCoder::Mp3ToPcmConvert(const char *mp3Path, const char *pcmPath) {
     pcmFile = fopen(pcmPath, "wb");
     if (mp3File == nullptr || pcmFile == nullptr) return 0;
 
-    unsigned char input[BUFFER_SIZE];
-    short output_l[BUFFER_SIZE * 20];
-    short output_r[BUFFER_SIZE * 20];
-    memset(output_l, 0, sizeof(output_l));
-    memset(output_r, 0, sizeof(output_r));
-
-    size_t read = 0;
-    size_t total = 0;
-    int sampleRate = 0;
-
     unsigned char id3Header[10];
     size_t id3Read = fread(id3Header, 1, sizeof(id3Header), mp3File);
     if (id3Read == sizeof(id3Header) && id3Header[0] == 'I' && id3Header[1] == 'D' && id3Header[2] == '3') {
@@ -136,28 +127,37 @@ int LameCoder::Mp3ToPcmConvert(const char *mp3Path, const char *pcmPath) {
         fseek(mp3File, 0, SEEK_SET);
     }
 
-    read = fread(input, 1, BUFFER_SIZE, mp3File);
-    while (read) {
-        int decoded = hip_decode_headers(hip, input, read, output_l, output_r, &mp3data);
-        if (decoded > 0) {
-            size_t writeCount = static_cast<size_t>(decoded);
-            total += writeCount;
-            fwrite(output_l, sizeof(short), writeCount, pcmFile);
-            sampleRate = mp3data.samplerate;
-        }
+    unsigned char input[BUFFER_SIZE];
+    short output_l[BUFFER_SIZE * 20];
+    short output_r[BUFFER_SIZE * 20];
+    memset(output_l, 0, sizeof(output_l));
+    memset(output_r, 0, sizeof(output_r));
+
+    size_t read = 0;
+    size_t total = 0;
+    int sampleRate = 0;
+
+    do {
         read = fread(input, 1, BUFFER_SIZE, mp3File);
-    }
-    if (total == 0) {
-        memset(input, 0, BUFFER_SIZE);
-        read = 10;
-        int decoded = hip_decode_headers(hip, input, read, output_l, output_r, &mp3data);
-        if (decoded > 0) {
-            size_t writeCount = static_cast<size_t>(decoded);
-            fwrite(output_l, sizeof(short), writeCount, pcmFile);
-            total += writeCount;
-            sampleRate = mp3data.samplerate;
+        if (read > 0) {
+            int decoded = hip_decode_headers(hip, input, read, output_l, output_r, &mp3data);
+            if (decoded > 0) {
+                size_t writeCount = static_cast<size_t>(decoded);
+                total += writeCount;
+                fwrite(output_l, sizeof(short), writeCount, pcmFile);
+                sampleRate = mp3data.samplerate;
+            }
+        } else if (total == 0) {
+            memset(input, 0, BUFFER_SIZE);
+            int decoded = hip_decode_headers(hip, input, 10, output_l, output_r, &mp3data);
+            if (decoded > 0) {
+                size_t writeCount = static_cast<size_t>(decoded);
+                fwrite(output_l, sizeof(short), writeCount, pcmFile);
+                total += writeCount;
+                sampleRate = mp3data.samplerate;
+            }
         }
-    }
+    } while (read > 0);
 
     fclose(pcmFile);
     fclose(mp3File);
