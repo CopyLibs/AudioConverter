@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.22.1)
 
 project(audio)
 
+set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-z,max-page-size=16384")
+
 add_subdirectory(lame lame)
 add_subdirectory(silk silk)
 
