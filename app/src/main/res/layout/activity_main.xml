@@ -33,6 +33,30 @@
         android:orientation="horizontal">
 
         <Button
+            android:id="@+id/btnMp3ToPcm"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="8dp"
+            android:layout_weight="1"
+            android:text="Mp3ToPcm"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/btnPcmToMp3"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="8dp"
+            android:layout_weight="1"
+            android:text="PcmToMp3"
+            android:textAllCaps="false" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
             android:id="@+id/btnMp3ToSilk"
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -50,5 +74,4 @@
             android:text="SilkToMp3"
             android:textAllCaps="false" />
     </LinearLayout>
-
 </LinearLayout>
