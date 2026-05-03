@@ -140,17 +140,20 @@ int LameCoder::Mp3ToPcmConvert(const char *mp3Path, const char *pcmPath) {
     do {
         read = fread(input, 1, BUFFER_SIZE, mp3File);
         if (read > 0) {
-            int decoded = hip_decode_headers(hip, input, read, output_l, output_r, &mp3data);
-            if (decoded > 0) {
+            bool firstDecode = true;
+            while (true) {
+                int decoded = hip_decode1_headers(hip, input, firstDecode ? read : 0, output_l, output_r, &mp3data);
+                firstDecode = false;
+                if (decoded <= 0) break;
                 size_t writeCount = static_cast<size_t>(decoded);
                 total += writeCount;
                 fwrite(output_l, sizeof(short), writeCount, pcmFile);
                 sampleRate = mp3data.samplerate;
             }
-        } else if (total == 0) {
-            memset(input, 0, BUFFER_SIZE);
-            int decoded = hip_decode_headers(hip, input, 10, output_l, output_r, &mp3data);
-            if (decoded > 0) {
+        } else {
+            while (true) {
+                int decoded = hip_decode1_headers(hip, input, 0, output_l, output_r, &mp3data);
+                if (decoded <= 0) break;
                 size_t writeCount = static_cast<size_t>(decoded);
                 fwrite(output_l, sizeof(short), writeCount, pcmFile);
                 total += writeCount;
@@ -167,4 +170,5 @@ int LameCoder::Mp3ToPcmConvert(const char *mp3Path, const char *pcmPath) {
 
 void LameCoder::Mp3ToPcmClose() {
     hip_decode_exit(hip);
+    hip = nullptr;
 }
