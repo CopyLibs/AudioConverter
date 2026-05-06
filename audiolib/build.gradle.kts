@@ -48,7 +48,7 @@ mavenPublishing {
     coordinates(
         groupId = "io.github.copylibs",
         artifactId = "audio-converter",
-        version = "1.0.0.beta4"
+        version = "1.0.0.beta5"
     )
 
     pom {
