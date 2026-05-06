@@ -130,8 +130,10 @@ int LameCoder::Mp3ToPcmConvert(const char *mp3Path, const char *pcmPath) {
     unsigned char input[BUFFER_SIZE];
     short output_l[BUFFER_SIZE * 20];
     short output_r[BUFFER_SIZE * 20];
+    short output_mono[BUFFER_SIZE * 20];
     memset(output_l, 0, sizeof(output_l));
     memset(output_r, 0, sizeof(output_r));
+    memset(output_mono, 0, sizeof(output_mono));
 
     size_t read = 0;
     size_t total = 0;
@@ -147,7 +149,15 @@ int LameCoder::Mp3ToPcmConvert(const char *mp3Path, const char *pcmPath) {
                 if (decoded <= 0) break;
                 size_t writeCount = static_cast<size_t>(decoded);
                 total += writeCount;
-                fwrite(output_l, sizeof(short), writeCount, pcmFile);
+                if (mp3data.stereo == 2) {
+                    for (size_t i = 0; i < writeCount; ++i) {
+                        int mixed = (static_cast<int>(output_l[i]) + static_cast<int>(output_r[i])) / 2;
+                        output_mono[i] = static_cast<short>(mixed);
+                    }
+                    fwrite(output_mono, sizeof(short), writeCount, pcmFile);
+                } else {
+                    fwrite(output_l, sizeof(short), writeCount, pcmFile);
+                }
                 sampleRate = mp3data.samplerate;
             }
         } else {
@@ -155,7 +165,15 @@ int LameCoder::Mp3ToPcmConvert(const char *mp3Path, const char *pcmPath) {
                 int decoded = hip_decode1_headers(hip, input, 0, output_l, output_r, &mp3data);
                 if (decoded <= 0) break;
                 size_t writeCount = static_cast<size_t>(decoded);
-                fwrite(output_l, sizeof(short), writeCount, pcmFile);
+                if (mp3data.stereo == 2) {
+                    for (size_t i = 0; i < writeCount; ++i) {
+                        int mixed = (static_cast<int>(output_l[i]) + static_cast<int>(output_r[i])) / 2;
+                        output_mono[i] = static_cast<short>(mixed);
+                    }
+                    fwrite(output_mono, sizeof(short), writeCount, pcmFile);
+                } else {
+                    fwrite(output_l, sizeof(short), writeCount, pcmFile);
+                }
                 total += writeCount;
                 sampleRate = mp3data.samplerate;
             }
